@@ -37,7 +37,7 @@ public class CatalogueClient {
 
         try {
             ResponseEntity<Void> response = client
-                .patch()
+                .post()
                 .uri("/stock")
                 .body(updates)
                 .retrieve()

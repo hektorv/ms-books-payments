@@ -21,6 +21,7 @@ public class PurchaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY) 
     private Long id;
     private String buyerEmail;
+    private Double total;
     private LocalDateTime purchaseDate;
     @OneToMany(mappedBy = "purchase", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<PurchaseItemEntity> items;

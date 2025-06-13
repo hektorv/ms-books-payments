@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import com.relatos.books.payments.clients.CatalogueClient;
 import com.relatos.books.payments.controller.request.PurchaseRequest;
+import com.relatos.books.payments.model.Book;
 import com.relatos.books.payments.model.Purchase;
 import com.relatos.books.payments.model.StockUpdateRequest;
 import com.relatos.books.payments.persistence.PurchaseEntity;
@@ -34,10 +35,16 @@ public class PurchaseServiceImpl implements PurchaseService{
     @Override
     @Transactional
     public void registerPurchase(PurchaseRequest request) {
+        double total = 0.0;
         log.info("registerPurchase"+request.toString());
         if (request.getItems() == null || request.getItems().isEmpty()) {
             throw new IllegalArgumentException("Purchase must contain at least one item.");
         }
+        for(var item:request.getItems()){
+            Book book = catalogueClient.getBookById(item.getBookId());    
+            total+= book.getPrice()*item.getQuantity();
+        }
+        
         List<StockUpdateRequest> updates = request.getItems().stream()
             .map(item -> new StockUpdateRequest(item.getBookId(), -item.getQuantity()))
             .collect(Collectors.toCollection(ArrayList::new));
@@ -47,6 +54,7 @@ public class PurchaseServiceImpl implements PurchaseService{
         PurchaseEntity purchase = new PurchaseEntity();
         purchase.setBuyerEmail(request.getBuyerEmail());
         purchase.setPurchaseDate(LocalDateTime.now());
+        purchase.setTotal(total);
 
         List<PurchaseItemEntity> validatedItems = request.getItems().stream().map(item -> {
             PurchaseItemEntity newItem = new PurchaseItemEntity();
