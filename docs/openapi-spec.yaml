@@ -1,0 +1,81 @@
+openapi: 3.0.3
+info:
+  title: Book Purchases API
+  version: 1.0.0
+  description: REST API for managing and registering book purchases.
+
+servers:
+  - url: http://localhost:8082/api/purchases
+    description: Local server for the purchases microservice
+
+paths:
+  /:
+    get:
+      summary: List all registered purchases
+      responses:
+        '200':
+          description: List of purchases
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Purchase'
+
+    post:
+      summary: Register a new purchase
+      description: Registers a new book purchase. The system will validate the book's existence and visibility by querying the catalogue microservice.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PurchaseRequest'
+      responses:
+        '201':
+          description: Purchase successfully registered
+        '400':
+          description: Invalid request (e.g., book does not exist or is hidden)
+        '404':
+          description: Book not found
+
+components:
+  schemas:
+    Purchase:
+      type: object
+      required:
+        - id
+        - bookId
+        - quantity
+        - buyerEmail
+        - purchaseDate
+      properties:
+        id:
+          type: string
+        bookId:
+          type: string
+        quantity:
+          type: integer
+          minimum: 1
+        buyerEmail:
+          type: string
+          format: email
+        purchaseDate:
+          type: string
+          format: date-time
+
+    PurchaseRequest:
+      type: object
+      required:
+        - bookId
+        - quantity
+        - buyerEmail
+      properties:
+        bookId:
+          type: string
+        quantity:
+          type: integer
+          minimum: 1
+        buyerEmail:
+          type: string
+          format: email
