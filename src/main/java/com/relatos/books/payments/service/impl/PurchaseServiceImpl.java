@@ -6,9 +6,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import com.relatos.books.payments.clients.CatalogueClient;
+import com.relatos.books.payments.clients.CatalogueClientConfig;
 import com.relatos.books.payments.controller.request.PurchaseRequest;
 import com.relatos.books.payments.model.Book;
 import com.relatos.books.payments.model.Purchase;
+import com.relatos.books.payments.model.PurchaseItem;
 import com.relatos.books.payments.model.StockUpdateRequest;
 import com.relatos.books.payments.persistence.PurchaseEntity;
 import com.relatos.books.payments.persistence.PurchaseItemEntity;
@@ -27,10 +29,26 @@ public class PurchaseServiceImpl implements PurchaseService{
     private final PurchaseRepository purchaseRepository;
     private final CatalogueClient catalogueClient;
 
-    @Override
-    public List<Purchase> getAllPurchases() {
-        return new ArrayList<>();
-    }
+@Override
+public List<Purchase> getAllPurchases() {
+    List<PurchaseEntity> entities = purchaseRepository.findAll();
+
+    return entities.stream()
+        .map(entity -> new Purchase(
+            entity.getId(),
+            entity.getBuyerEmail(),
+            entity.getPurchaseDate(),
+            entity.getItems().stream()
+                .map(itemEntity -> new PurchaseItem(
+                    itemEntity.getBookId(),
+                    itemEntity.getQuantity()
+                ))
+                .collect(Collectors.toList())
+        ))
+        .collect(Collectors.toList());
+}
+
+
 
     @Override
     @Transactional

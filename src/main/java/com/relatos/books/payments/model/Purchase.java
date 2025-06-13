@@ -8,8 +8,15 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
+
 public class Purchase {
-    private String id;
+    public Purchase(Long id, String buyerEmail, LocalDateTime purchaseDate,List<PurchaseItem> items) {
+        this.id = id;
+        this.buyerEmail = buyerEmail;
+        this.purchaseDate = purchaseDate;
+        this.items = items;
+    }
+    private Long id;
     private String buyerEmail;
     private LocalDateTime purchaseDate;
     private List<PurchaseItem> items;
